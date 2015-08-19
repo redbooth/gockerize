@@ -3,7 +3,7 @@ gockerize
 
 Build static golang binaries and package them into minimal docker containers
 
-<img src="gockerize.png" alt="gockerize" width="415px" />
+<img src="gockerize.png" alt="gockerize" width="500px" />
 
 License
 -------
