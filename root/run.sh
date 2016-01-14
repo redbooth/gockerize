@@ -22,6 +22,6 @@ if [ -d "${GOPATH}/src/${SERVICE}/patches" ] ; then
     popd
 fi
 
-CGO_ENABLED=0 go get $GOARGS -a -x -installsuffix cgo -ldflags '-d -s -w' ${SERVICE}
+CGO_ENABLED=0 GO15VENDOREXPERIMENT=1 go get $GOARGS -a -x -installsuffix cgo -ldflags '-d -s -w' ${SERVICE}
 docker build -t ${IMAGE} -f ${DOCKERFILE} ${GOPATH}
 
