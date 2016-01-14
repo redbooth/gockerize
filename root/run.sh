@@ -15,7 +15,7 @@ fi
 
 # apply optional stdlib patches
 if [ -d "${GOPATH}/src/${SERVICE}/patches" ] ; then
-    pushd /usr/share/go/
+    pushd /usr/local/go/
     for p in ${GOPATH}/src/${SERVICE}/patches/*.patch ; do
         patch -p1 < $p
     done
