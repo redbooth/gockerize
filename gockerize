@@ -51,8 +51,13 @@ FROM $BUILDER
 COPY . /gopath/src/$DST_DIR
 EOF
 
+if ! docker -v | grep -v 'version 1.9.0' &>/dev/null ; then
+    echo "WARNING: disabling build cache to workaround bug in docker 1.9.0"
+    CACHE=--no-cache=true
+fi
+
 # build temporary container w/ build context
-docker build -t "$tmpimg" -f "$tmpfile" "$SRC_DIR"
+docker build $CACHE -t "$tmpimg" -f "$tmpfile" "$SRC_DIR"
 
 rm -f "$tmpfile"
 
