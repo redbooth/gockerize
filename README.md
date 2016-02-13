@@ -79,19 +79,21 @@ by compiling package `acme.com/foo`.
 Dependency resolution
 ---------------------
 
-For ease of use, golang-builder uses `go get` to automatically fetch remote
-dependencies from github and other public repositories supported by default.
+For ease of use, gockerize uses `go get` to automatically fetch remote
+dependencies from github and other public repositories supported by default,
+however, vendored dependencies should be preferred as they ensure repeatable
+build.
 
-Relying on this feature should be avoided in favor of vendored dependencies.
+gockerize uses Go 1.5.3 and enables [GOVENDOREXPERIMENT](https://docs.google.com/document/d/1Bz5-UB7g2uPBdOx-rw5t9MxJwkfpx90cqG9AFL0JAYo).
 
 
 Patching standard lib
 ---------------------
 
-Fully static builds allow easy patching of the standard library. golang-builder
+Fully static builds allow easy patching of the standard library. gockerize
 leverages that by automatically applying patches found in the `patches` subdir
 of the package being built.
 
-Care should be taken that the patches cleanly apply against the version of go
-used in the container (1.4.2 at this time).
+Care should be taken that the patches cleanly apply against the version of Go
+used in the container (1.5.3 at this time).
 
