@@ -36,6 +36,13 @@ DOCKERFILE=${5:-/dev/null}
 BUILDER=aerofs/gockerize
 THIS_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+source "$THIS_DIR/img_fresh.sh"
+
+if img_fresh "$IMAGE" "$SRC_DIR" ; then
+    echo "${IMAGE} already up-to-date"
+    exit 0
+fi
+
 echo "Building $BUILDER ..."
 # build base builder container
 docker build -t $BUILDER "$THIS_DIR"
@@ -51,13 +58,11 @@ FROM $BUILDER
 COPY . /gopath/src/$DST_DIR
 EOF
 
-if ! docker -v | grep -v 'version 1.9.0' &>/dev/null ; then
-    echo "WARNING: disabling build cache to workaround bug in docker 1.9.0"
-    CACHE=--no-cache=true
-fi
-
 # build temporary container w/ build context
-docker build $CACHE -t "$tmpimg" -f "$tmpfile" "$SRC_DIR"
+# NB: disable docker cache, it's not much use for the temporary container and
+# some versions of docker do not correctly invalidate it upon file changes in
+# the build context
+docker build --no-cache=true -t "$tmpimg" -f "$tmpfile" "$SRC_DIR"
 
 rm -f "$tmpfile"
 
