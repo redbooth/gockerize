@@ -84,8 +84,10 @@ dependencies from github and other public repositories supported by default,
 however, vendored dependencies should be preferred as they ensure repeatable
 build.
 
-gockerize uses Go 1.5.3 and enables [GOVENDOREXPERIMENT](https://docs.google.com/document/d/1Bz5-UB7g2uPBdOx-rw5t9MxJwkfpx90cqG9AFL0JAYo).
-
+By default, gockerize uses Go 1.5.3 and enables [GOVENDOREXPERIMENT](https://docs.google.com/document/d/1Bz5-UB7g2uPBdOx-rw5t9MxJwkfpx90cqG9AFL0JAYo).
+However, it is possible to use any desired version of Go by setting the `GOVERSION`
+environment variable appropriately, for instance `GOVERSION=1.9.2` to build with
+Go 1.9.2
 
 Patching standard lib
 ---------------------

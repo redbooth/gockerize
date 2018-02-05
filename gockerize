@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015, Air Computing Inc. <oss@aerofs.com>
+# Copyright (c) 2015-2017, Air Computing Inc. <oss@aerofs.com>
 # All rights reserved.
 
 set -e
@@ -33,7 +33,12 @@ else
 fi
 DOCKERFILE=${5:-/dev/null}
 
-BUILDER=aerofs/gockerize
+# TODO: auto-detect latest stable golang release
+# NB: stick to 1.5.3 by default for backwards compatibility
+GOVERSION=${GOVERSION:-1.5.3}
+BUILDER_PREFIX=aerofs/gockerize
+BUILDER_BASE=${BUILDER_PREFIX}.base
+BUILDER=${BUILDER_PREFIX}-${GOVERSION}
 THIS_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "$THIS_DIR/img_fresh.sh"
@@ -45,7 +50,16 @@ fi
 
 echo "Building $BUILDER ..."
 # build base builder container
-docker build -t $BUILDER "$THIS_DIR"
+docker build -t ${BUILDER_BASE} "$THIS_DIR"
+
+# build builder with specific go version
+docker build -t ${BUILDER} - <<EOF
+FROM ${BUILDER_BASE}
+RUN curl https://storage.googleapis.com/golang/go${GOVERSION}.linux-amd64.tar.gz -o go.tar.gz &&\
+    tar -C /usr/local -xzf go.tar.gz &&\
+    rm -rf go.tar.gz &&\
+    mkdir /gopath
+EOF
 
 tmpimg="${BUILDER}-$(echo "$IMAGE" | sed 's/\//./g')"
 echo "Building $tmpimg ..."
@@ -54,7 +68,7 @@ echo "Building $tmpimg ..."
 tmpfile="${SRC_DIR}/.gockerize.dockerfile"
 
 cat - > "$tmpfile" <<EOF
-FROM $BUILDER
+FROM ${BUILDER}
 COPY . /gopath/src/$DST_DIR
 EOF
 
