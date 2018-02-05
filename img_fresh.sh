@@ -9,7 +9,8 @@ function img_fresh() {
     local version=$(docker -v | cut -d' ' -f 3)
     local major=$(echo $version | cut -d. -f 1)
     local minor=$(echo $version | cut -d. -f 2)
-    if (( "$major" >= 1 && "$minor" >= 8 )) ; then
+
+    if (( 10#"$major" >= 1 && 10#"$minor" >= 8 )) ; then
         local created=$(
             docker inspect --format='{{.Created}}' --type=image "$1" |\
             cut -d. -f1 |\
@@ -17,7 +18,7 @@ function img_fresh() {
         )
     else
         docker build -t test-newer - &>/dev/null <<EOF
-FROM alpine:3.3
+FROM alpine:3.5
 RUN apk -U add curl jq
 EOF
         local created=$(docker run --rm -v /var/run/docker.sock:/var/run/docker.sock test-newer sh -c \
@@ -25,9 +26,8 @@ EOF
             | jq -r '.Created[0:19]' | sed 's/T/ /'"
         )
     fi
-    echo "$1 created: $created" 1>&2
+
     # find first file in build context newer than image, if any
     # NB: docker gives UTC timestamps, make sure find does not compare it to local time
-    [[ -n "$created" ]] && [[ -e "$2" ]] && [[ -z "$(TZ=UTC find "$2" -newermt "$created" | head -n 1)" ]]
+    [[ -n "$created" ]] && [[ -e "$2" ]] && [[ -z "$(TZ=UTC find "$2" -type f -newermt "$created" | head -n 1)" ]]
 }
-
